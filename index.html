@@ -23,6 +23,8 @@
             font-family: 'Poppins', sans-serif;
             padding: 1.5rem;
             overflow-x: hidden;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         .card {
@@ -105,6 +107,8 @@
             gap: 1.2rem;
             margin: 2rem 0 1.8rem;
             perspective: 800px;
+            min-height: 120px;
+            position: relative;
         }
 
         .invite-btn {
@@ -126,6 +130,8 @@
             gap: 12px;
             line-height: 1;
             flex-shrink: 0;
+            position: relative;
+            z-index: 5;
         }
 
         .invite-btn:hover {
@@ -144,7 +150,7 @@
             100% { box-shadow: 0 16px 30px -6px rgba(255, 100, 0, 0.5), 0 0 0 2px rgba(255, 215, 0, 0.4) inset; }
         }
 
-        /* BUTANG NO - AKAN LARI */
+        /* BUTANG NO - LARI GILA! */
         .no-btn {
             background: linear-gradient(145deg, #4a4f6b, #2a2e45);
             border: 2px solid rgba(255, 80, 80, 0.5);
@@ -155,21 +161,27 @@
             color: #ffb0b0;
             box-shadow: 0 12px 25px -6px rgba(200, 0, 0, 0.3);
             cursor: pointer;
-            transition: all 0.08s ease;
             letter-spacing: 1px;
             display: inline-flex;
             align-items: center;
             gap: 12px;
             line-height: 1;
             flex-shrink: 0;
-            position: relative;
+            position: absolute;
             white-space: nowrap;
+            z-index: 10;
+            transition: all 0.08s cubic-bezier(0.34, 1.56, 0.64, 1);
+            touch-action: none;
         }
 
         .no-btn:hover {
             background: linear-gradient(145deg, #5a5f7f, #3a3e5a);
             border-color: rgba(255, 100, 100, 0.8);
             color: #ffd0d0;
+        }
+
+        .no-btn:active {
+            transform: scale(0.9) !important;
         }
 
         /* pilihan tempat */
@@ -274,7 +286,7 @@
             .invite-btn { font-size: 1.6rem; padding: 0.9rem 2rem; gap: 8px; }
             .no-btn { font-size: 1.4rem; padding: 0.8rem 1.8rem; gap: 6px; }
             .option-badge { font-size: 0.9rem; padding: 0.4rem 1.2rem; }
-            .btn-wrapper { gap: 1rem; }
+            .btn-wrapper { gap: 1rem; min-height: 100px; }
         }
 
         @media (max-width: 400px) {
@@ -308,7 +320,7 @@
         </p>
 
         <!-- BUTTONS -->
-        <div class="btn-wrapper">
+        <div class="btn-wrapper" id="btnWrapper">
             <button class="invite-btn" id="lunchBtn">
                 <span>🤝</span> SETUJU!
             </button>
@@ -325,29 +337,30 @@
         (function() {
             const btn = document.getElementById('lunchBtn');
             const noBtn = document.getElementById('noBtn');
+            const wrapper = document.getElementById('btnWrapper');
             const card = document.querySelector('.card');
-            const btnWrapper = document.querySelector('.btn-wrapper');
 
             // mesej gempak
             const lunchMessages = [
-                "NAZIFF SETUJU! Jom lunch!",
-                "Yeay! Love u sayang! 🎉",
-                "Lunch date dengan Naziff! ",
-                "Pilihla nak makan mana",
-                "lovveee uu! ",
+                "NAZIFF SETUJU! Jom lunch! 🎉",
+                "Yeay! Love u sayang! ❤️",
+                "Lunch date dengan Naziff! 😍",
+                "Pilihla nak makan mana 🍽️",
+                "lovveee uu! 💕",
             ];
 
-            // mesej kalau terpaksa klik no (tapi susah nak kena)
             const noMessages = [
                 "Eh, janganlah 😭",
-                "Tak boleh terima! pleaseee ",
+                "Tak boleh terima! pleaseee 🥺",
                 "Naziff, pleaseee! 🍕",
-                "Jahatnyaaaa",
-                "Bolehlaaa bolehlaaa",
-                "Sampai hati reject"
+                "Jahatnyaaaa 😤",
+                "Bolehlaaa bolehlaaa 🙏",
+                "Sampai hati reject 💔",
+                "Menangis akuu nantiii",
+                "Try lagi! ✨"
             ];
 
-            // fungsi toast
+            // ===== TOAST =====
             function showFloatingMessage(text, isSuccess = true) {
                 const oldToast = document.querySelector('.toast-msg');
                 if (oldToast) oldToast.remove();
@@ -396,20 +409,20 @@
                 }, 2800);
             }
 
-            // burst sparkle
+            // ===== SPARKLE BURST =====
             function burstSparklesFromButton(btnElement, color = null) {
                 const rect = btnElement.getBoundingClientRect();
                 const cx = rect.left + rect.width / 2;
                 const cy = rect.top + rect.height / 2;
 
                 const colors = color ? [color, color, '#ffe484', '#ffaa5e'] : ['#ffb347', '#ffd966', '#ff7f3f', '#ffe484', '#ffaa5e', '#fcee9f'];
-                for (let i = 0; i < 20; i++) {
+                for (let i = 0; i < 25; i++) {
                     const spark = document.createElement('span');
-                    const size = 8 + Math.random() * 18;
+                    const size = 6 + Math.random() * 18;
                     const angle = Math.random() * 2 * Math.PI;
-                    const distance = 70 + Math.random() * 180;
+                    const distance = 60 + Math.random() * 200;
                     const dx = Math.cos(angle) * distance;
-                    const dy = Math.sin(angle) * distance - 40;
+                    const dy = Math.sin(angle) * distance - 30;
 
                     const chosenColor = colors[Math.floor(Math.random() * colors.length)];
                     Object.assign(spark.style, {
@@ -425,19 +438,19 @@
                         zIndex: '9999',
                         transition: 'all 0.9s cubic-bezier(0.2, 0.9, 0.3, 1.1)',
                         opacity: '1',
-                        transform: 'scale(0.3)',
+                        transform: 'scale(0.2)',
                     });
 
                     document.body.appendChild(spark);
 
                     requestAnimationFrame(() => {
-                        spark.style.transform = `translate(${dx}px, ${dy}px) scale(1.2)`;
-                        spark.style.opacity = '0.6';
+                        spark.style.transform = `translate(${dx}px, ${dy}px) scale(1.3)`;
+                        spark.style.opacity = '0.7';
                     });
 
                     setTimeout(() => {
                         spark.style.opacity = '0';
-                        spark.style.transform = `translate(${dx * 1.4}px, ${dy * 1.4}px) scale(0.2)`;
+                        spark.style.transform = `translate(${dx * 1.5}px, ${dy * 1.5}px) scale(0.1)`;
                         setTimeout(() => {
                             if (spark.parentNode) spark.remove();
                         }, 500);
@@ -445,7 +458,126 @@
                 }
             }
 
-            // ========== BUTANG SETUJU ==========
+            // ===== FUNCTION LARI GILA =====
+            function moveNoButton() {
+                if (!noBtn || !wrapper) return;
+
+                const wrapperRect = wrapper.getBoundingClientRect();
+                const btnRect = noBtn.getBoundingClientRect();
+
+                // kira ruang dalam wrapper
+                const padding = 10;
+                const maxX = wrapperRect.width - btnRect.width - padding;
+                const maxY = wrapperRect.height - btnRect.height - padding;
+
+                // kalau wrapper kecik, jangan lari
+                if (maxX < 10 || maxY < 10) return;
+
+                // lompat rawak tapi pastikan tak terkeluar
+                let newX = Math.random() * maxX;
+                let newY = Math.random() * maxY;
+
+                // pastikan tak terlalu dekat dengan cursor (kalau ada)
+                // just random je
+
+                noBtn.style.position = 'absolute';
+                noBtn.style.left = newX + 'px';
+                noBtn.style.top = newY + 'px';
+                noBtn.style.transform = `rotate(${Math.random() * 10 - 5}deg) scale(${0.85 + Math.random() * 0.3})`;
+                
+                // efek pop
+                noBtn.style.transition = 'all 0.1s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                
+                // bunyi pop effect (visual)
+                noBtn.style.boxShadow = '0 0 50px rgba(255, 50, 50, 0.7), 0 0 100px rgba(255, 0, 0, 0.3)';
+                setTimeout(() => {
+                    noBtn.style.boxShadow = '0 12px 25px -6px rgba(200, 0, 0, 0.3)';
+                }, 150);
+            }
+
+            // ===== LARI SETIAP KALI =====
+            function runAway() {
+                moveNoButton();
+                // kadang-kadang lari lagi lepas tu
+                if (Math.random() > 0.5) {
+                    setTimeout(moveNoButton, 100 + Math.random() * 200);
+                }
+            }
+
+            // ===== EVENT UNTUK LARI =====
+
+            // 1. Lari dari mouse
+            noBtn.addEventListener('mouseenter', runAway);
+            noBtn.addEventListener('mousemove', function(e) {
+                // lari lagi kalau cursor dekat
+                const rect = this.getBoundingClientRect();
+                const cx = rect.left + rect.width / 2;
+                const cy = rect.top + rect.height / 2;
+                const dist = Math.sqrt(Math.pow(e.clientX - cx, 2) + Math.pow(e.clientY - cy, 2));
+                if (dist < 150) {
+                    runAway();
+                }
+            });
+
+            // 2. Lari dari touch (mobile)
+            noBtn.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                runAway();
+                // getah sikit
+                this.style.transform += ' scale(0.85)';
+                setTimeout(() => {
+                    this.style.transform = this.style.transform.replace(' scale(0.85)', '');
+                }, 150);
+            });
+
+            noBtn.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+                runAway();
+            });
+
+            // 3. Lari bila cuba klik
+            noBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // efek kena
+                burstSparklesFromButton(this, '#ff6b6b');
+                const msg = noMessages[Math.floor(Math.random() * noMessages.length)];
+                showFloatingMessage(msg, false);
+                
+                // lari laju-laju
+                runAway();
+                setTimeout(runAway, 50);
+                setTimeout(runAway, 150);
+
+                // ubah teks sekejap
+                const originalText = this.innerHTML;
+                this.innerHTML = '😭 JANGAN!';
+                this.style.background = 'linear-gradient(145deg, #6a2a2a, #3a1a1a)';
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.style.background = '';
+                }, 800);
+            });
+
+            // 4. Lari rawak walaupun tak sentuh (savage!)
+            setInterval(() => {
+                if (Math.random() > 0.6) {
+                    runAway();
+                }
+            }, 2000);
+
+            // 5. Lari bila window resize
+            window.addEventListener('resize', function() {
+                setTimeout(runAway, 100);
+            });
+
+            // 6. Lari bila scroll
+            window.addEventListener('scroll', function() {
+                runAway();
+            });
+
+            // ===== BUTANG SETUJU =====
             btn.addEventListener('click', function(e) {
                 e.preventDefault();
                 burstSparklesFromButton(this);
@@ -470,114 +602,40 @@
                 }, 1200);
 
                 // extra confetti
-                for (let i = 0; i < 6; i++) {
+                for (let i = 0; i < 8; i++) {
                     setTimeout(() => {
                         const extraEmoji = document.createElement('div');
-                        extraEmoji.textContent = ['🎉', '🥳', '🍕', '🔥', '⭐', '💥'][Math.floor(Math.random() * 6)];
+                        extraEmoji.textContent = ['🎉', '🥳', '🍕', '🔥', '⭐', '💥', '❤️', '✨'][Math.floor(Math.random() * 8)];
                         Object.assign(extraEmoji.style, {
                             position: 'fixed',
-                            left: (10 + Math.random() * 80) + '%',
-                            top: (10 + Math.random() * 60) + '%',
-                            fontSize: (2 + Math.random() * 3.5) + 'rem',
+                            left: (5 + Math.random() * 90) + '%',
+                            top: (5 + Math.random() * 70) + '%',
+                            fontSize: (2 + Math.random() * 4) + 'rem',
                             pointerEvents: 'none',
                             zIndex: '9998',
                             opacity: '0',
                             transform: 'scale(0.2) rotate(20deg)',
-                            transition: 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                            transition: 'all 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)',
                         });
                         document.body.appendChild(extraEmoji);
 
                         requestAnimationFrame(() => {
                             extraEmoji.style.opacity = '1';
-                            extraEmoji.style.transform = 'scale(1.2) rotate(0deg)';
+                            extraEmoji.style.transform = 'scale(1.3) rotate(0deg)';
                         });
 
                         setTimeout(() => {
                             extraEmoji.style.opacity = '0';
-                            extraEmoji.style.transform = 'scale(0.5) rotate(30deg) translateY(-40px)';
+                            extraEmoji.style.transform = 'scale(0.5) rotate(30deg) translateY(-60px)';
                             setTimeout(() => {
                                 if (extraEmoji.parentNode) extraEmoji.remove();
                             }, 500);
-                        }, 1200);
-                    }, i * 120);
+                        }, 1400);
+                    }, i * 100);
                 }
             });
 
-            // ========== BUTANG NO - AKAN LARI! ==========
-            let noBtnX = 0, noBtnY = 0;
-            let isNoBtnRunning = false;
-
-            function moveNoButton() {
-                if (!noBtn) return;
-                const wrapperRect = btnWrapper.getBoundingClientRect();
-                const btnRect = noBtn.getBoundingClientRect();
-
-                // had pergerakan dalam wrapper
-                const maxX = wrapperRect.width - btnRect.width - 10;
-                const maxY = wrapperRect.height - btnRect.height - 10;
-
-                // lompat rawak
-                const newX = Math.max(0, Math.min(maxX, Math.random() * maxX));
-                const newY = Math.max(0, Math.min(maxY, Math.random() * maxY));
-
-                noBtn.style.position = 'relative';
-                noBtn.style.left = newX + 'px';
-                noBtn.style.top = newY + 'px';
-                noBtn.style.transform = `rotate(${Math.random() * 6 - 3}deg) scale(${0.9 + Math.random() * 0.2})`;
-                
-                // efek "terkejar"
-                noBtn.style.transition = 'all 0.12s cubic-bezier(0.34, 1.56, 0.64, 1)';
-            }
-
-            // event untuk lari dari cursor
-            noBtn.addEventListener('mouseenter', function(e) {
-                // lari!
-                moveNoButton();
-                // tambah efek kecil
-                this.style.boxShadow = '0 0 40px rgba(255, 50, 50, 0.6)';
-                setTimeout(() => {
-                    this.style.boxShadow = '';
-                }, 200);
-            });
-
-            // juga lari kalau cursor dekat (prevent click senang)
-            noBtn.addEventListener('mousemove', function(e) {
-                // lari lagi kalau cursor masih dekat
-                moveNoButton();
-            });
-
-            // kalau berjaya klik (sangat jarang)
-            noBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                // tetap bagi efek walaupun klik
-                burstSparklesFromButton(this, '#ff6b6b');
-                const msg = noMessages[Math.floor(Math.random() * noMessages.length)];
-                showFloatingMessage(msg, false);
-                
-                // lepas klik, dia lari lagi
-                moveNoButton();
-
-                // ubah teks sekejap
-                const originalText = this.innerHTML;
-                this.innerHTML = '😭 JANGAN!';
-                this.style.background = 'linear-gradient(145deg, #6a2a2a, #3a1a1a)';
-                setTimeout(() => {
-                    this.innerHTML = originalText;
-                    this.style.background = '';
-                }, 800);
-            });
-
-            // reset position bila window resize
-            window.addEventListener('resize', function() {
-                if (noBtn) {
-                    noBtn.style.left = '0px';
-                    noBtn.style.top = '0px';
-                    noBtn.style.transform = '';
-                }
-            });
-
-            // option badge klik
+            // ===== OPTION BADGE =====
             document.querySelectorAll('.option-badge').forEach(badge => {
                 badge.addEventListener('click', function(e) {
                     e.stopPropagation();
@@ -586,6 +644,15 @@
                     burstSparklesFromButton(this);
                 });
             });
+
+            // reset position awal
+            setTimeout(() => {
+                if (noBtn) {
+                    noBtn.style.position = 'absolute';
+                    noBtn.style.left = '0px';
+                    noBtn.style.top = '0px';
+                }
+            }, 100);
 
         })();
     </script>
