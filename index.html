@@ -106,9 +106,19 @@
             align-items: center;
             gap: 1.2rem;
             margin: 2rem 0 1.8rem;
-            perspective: 800px;
             min-height: 120px;
             position: relative;
+        }
+
+        /* Container untuk butang lari */
+        .no-btn-container {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 160px;
+            min-height: 80px;
+            flex-shrink: 0;
         }
 
         .invite-btn {
@@ -123,8 +133,6 @@
             cursor: pointer;
             transition: all 0.15s ease;
             letter-spacing: 1px;
-            transform-style: preserve-3d;
-            animation: pulseBtn 2s infinite;
             display: inline-flex;
             align-items: center;
             gap: 12px;
@@ -132,6 +140,7 @@
             flex-shrink: 0;
             position: relative;
             z-index: 5;
+            animation: pulseBtn 2s infinite;
         }
 
         .invite-btn:hover {
@@ -150,7 +159,7 @@
             100% { box-shadow: 0 16px 30px -6px rgba(255, 100, 0, 0.5), 0 0 0 2px rgba(255, 215, 0, 0.4) inset; }
         }
 
-        /* BUTANG NO - LARI GILA! */
+        /* BUTANG NO - LARI GILA DALAM CONTAINER */
         .no-btn {
             background: linear-gradient(145deg, #4a4f6b, #2a2e45);
             border: 2px solid rgba(255, 80, 80, 0.5);
@@ -166,12 +175,16 @@
             align-items: center;
             gap: 12px;
             line-height: 1;
-            flex-shrink: 0;
-            position: absolute;
             white-space: nowrap;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             z-index: 10;
             transition: all 0.08s cubic-bezier(0.34, 1.56, 0.64, 1);
             touch-action: none;
+            min-width: 140px;
+            justify-content: center;
         }
 
         .no-btn:hover {
@@ -181,7 +194,7 @@
         }
 
         .no-btn:active {
-            transform: scale(0.9) !important;
+            transform: translate(-50%, -50%) scale(0.9) !important;
         }
 
         /* pilihan tempat */
@@ -237,7 +250,6 @@
             display: inline-block;
             backdrop-filter: blur(4px);
             border: 1px solid rgba(255, 255, 255, 0.04);
-            animation: fadeIn 2s;
         }
 
         .footer-note span {
@@ -284,7 +296,8 @@
             .hero-emoji { font-size: 4.8rem; }
             .sub { font-size: 1.2rem; }
             .invite-btn { font-size: 1.6rem; padding: 0.9rem 2rem; gap: 8px; }
-            .no-btn { font-size: 1.4rem; padding: 0.8rem 1.8rem; gap: 6px; }
+            .no-btn { font-size: 1.4rem; padding: 0.8rem 1.8rem; gap: 6px; min-width: 100px; }
+            .no-btn-container { min-width: 120px; min-height: 70px; }
             .option-badge { font-size: 0.9rem; padding: 0.4rem 1.2rem; }
             .btn-wrapper { gap: 1rem; min-height: 100px; }
         }
@@ -293,7 +306,8 @@
             .title { font-size: 2rem; }
             .hero-emoji { font-size: 4rem; }
             .invite-btn { font-size: 1.3rem; padding: 0.7rem 1.4rem; }
-            .no-btn { font-size: 1.1rem; padding: 0.6rem 1.2rem; }
+            .no-btn { font-size: 1.1rem; padding: 0.6rem 1.2rem; min-width: 80px; }
+            .no-btn-container { min-width: 100px; min-height: 60px; }
         }
     </style>
 </head>
@@ -321,13 +335,17 @@
 
         <!-- BUTTONS -->
         <div class="btn-wrapper" id="btnWrapper">
+            <!-- Butang SETUJU - kekal di kiri -->
             <button class="invite-btn" id="lunchBtn">
                 <span>🤝</span> SETUJU!
             </button>
 
-            <button class="no-btn" id="noBtn">
-                <span>🚫</span> Tak nak
-            </button>
+            <!-- Container untuk butang TAK NAK yang lari -->
+            <div class="no-btn-container" id="noContainer">
+                <button class="no-btn" id="noBtn">
+                    <span>🚫</span> Tak nak
+                </button>
+            </div>
         </div>
 
         
@@ -337,10 +355,11 @@
         (function() {
             const btn = document.getElementById('lunchBtn');
             const noBtn = document.getElementById('noBtn');
+            const container = document.getElementById('noContainer');
             const wrapper = document.getElementById('btnWrapper');
             const card = document.querySelector('.card');
 
-            // mesej gempak
+            // mesej
             const lunchMessages = [
                 "NAZIFF SETUJU! Jom lunch! 🎉",
                 "Yeay! Love u sayang! ❤️",
@@ -356,8 +375,7 @@
                 "Jahatnyaaaa 😤",
                 "Bolehlaaa bolehlaaa 🙏",
                 "Sampai hati reject 💔",
-                "Menangis akuu nantiii",
-                "Try lagi! ✨"
+                "Menangis akuu 😢",
             ];
 
             // ===== TOAST =====
@@ -458,37 +476,35 @@
                 }
             }
 
-            // ===== FUNCTION LARI GILA =====
+            // ===== FUNCTION LARI DALAM CONTAINER =====
             function moveNoButton() {
-                if (!noBtn || !wrapper) return;
+                if (!noBtn || !container) return;
 
-                const wrapperRect = wrapper.getBoundingClientRect();
+                const containerRect = container.getBoundingClientRect();
                 const btnRect = noBtn.getBoundingClientRect();
 
-                // kira ruang dalam wrapper
+                // Kira ruang dalam container (dalam pixel)
                 const padding = 10;
-                const maxX = wrapperRect.width - btnRect.width - padding;
-                const maxY = wrapperRect.height - btnRect.height - padding;
+                const maxX = containerRect.width - btnRect.width - padding;
+                const maxY = containerRect.height - btnRect.height - padding;
 
-                // kalau wrapper kecik, jangan lari
+                // Kalau container terlalu kecil, jangan lari
                 if (maxX < 10 || maxY < 10) return;
 
-                // lompat rawak tapi pastikan tak terkeluar
-                let newX = Math.random() * maxX;
-                let newY = Math.random() * maxY;
+                // Position relative to container (0-100%)
+                const percentX = Math.random() * 100;
+                const percentY = Math.random() * 100;
 
-                // pastikan tak terlalu dekat dengan cursor (kalau ada)
-                // just random je
+                // Tapi pastikan tak terkeluar
+                const clampedX = Math.max(0, Math.min(100, percentX));
+                const clampedY = Math.max(0, Math.min(100, percentY));
 
-                noBtn.style.position = 'absolute';
-                noBtn.style.left = newX + 'px';
-                noBtn.style.top = newY + 'px';
-                noBtn.style.transform = `rotate(${Math.random() * 10 - 5}deg) scale(${0.85 + Math.random() * 0.3})`;
+                noBtn.style.left = clampedX + '%';
+                noBtn.style.top = clampedY + '%';
+                noBtn.style.transform = `translate(-50%, -50%) rotate(${Math.random() * 10 - 5}deg) scale(${0.85 + Math.random() * 0.3})`;
                 
                 // efek pop
                 noBtn.style.transition = 'all 0.1s cubic-bezier(0.34, 1.56, 0.64, 1)';
-                
-                // bunyi pop effect (visual)
                 noBtn.style.boxShadow = '0 0 50px rgba(255, 50, 50, 0.7), 0 0 100px rgba(255, 0, 0, 0.3)';
                 setTimeout(() => {
                     noBtn.style.boxShadow = '0 12px 25px -6px rgba(200, 0, 0, 0.3)';
@@ -509,7 +525,6 @@
             // 1. Lari dari mouse
             noBtn.addEventListener('mouseenter', runAway);
             noBtn.addEventListener('mousemove', function(e) {
-                // lari lagi kalau cursor dekat
                 const rect = this.getBoundingClientRect();
                 const cx = rect.left + rect.width / 2;
                 const cy = rect.top + rect.height / 2;
@@ -523,7 +538,6 @@
             noBtn.addEventListener('touchstart', function(e) {
                 e.preventDefault();
                 runAway();
-                // getah sikit
                 this.style.transform += ' scale(0.85)';
                 setTimeout(() => {
                     this.style.transform = this.style.transform.replace(' scale(0.85)', '');
@@ -540,17 +554,14 @@
                 e.preventDefault();
                 e.stopPropagation();
                 
-                // efek kena
                 burstSparklesFromButton(this, '#ff6b6b');
                 const msg = noMessages[Math.floor(Math.random() * noMessages.length)];
                 showFloatingMessage(msg, false);
                 
-                // lari laju-laju
                 runAway();
                 setTimeout(runAway, 50);
                 setTimeout(runAway, 150);
 
-                // ubah teks sekejap
                 const originalText = this.innerHTML;
                 this.innerHTML = '😭 JANGAN!';
                 this.style.background = 'linear-gradient(145deg, #6a2a2a, #3a1a1a)';
@@ -601,7 +612,6 @@
                     this.style.background = '';
                 }, 1200);
 
-                // extra confetti
                 for (let i = 0; i < 8; i++) {
                     setTimeout(() => {
                         const extraEmoji = document.createElement('div');
@@ -648,9 +658,9 @@
             // reset position awal
             setTimeout(() => {
                 if (noBtn) {
-                    noBtn.style.position = 'absolute';
-                    noBtn.style.left = '0px';
-                    noBtn.style.top = '0px';
+                    noBtn.style.left = '50%';
+                    noBtn.style.top = '50%';
+                    noBtn.style.transform = 'translate(-50%, -50%)';
                 }
             }, 100);
 
